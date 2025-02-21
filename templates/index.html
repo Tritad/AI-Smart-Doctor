@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Doctor 🧑‍⚕️</title>
+
+    <style>
+        /* ตั้งค่าพื้นหลังและฟอนต์ */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* กล่องแชทหลัก */
+        .chat-container {
+            width: 480px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        /* กล่องแสดงข้อความแชท */
+        .chat-box {
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        /* ข้อความของผู้ใช้ */
+        .user-msg {
+            background: #dff9fb;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 10px;
+            align-self: flex-end;
+            max-width: 80%;
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+            color: #0077b6;
+        }
+
+        /* ข้อความของ AI */
+        .bot-msg {
+            background: #f8c291;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 10px;
+            align-self: flex-start;
+            max-width: 80%;
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            color: #8b0000;
+        }
+
+        /* ช่องป้อนข้อความและปุ่ม */
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 18px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #219150;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h1>AI Smart Doctor 🧑‍⚕️</h1>
+        <p>ปรึกษาปัญหาสุขภาพของคุณกับ AI ได้ทุกที่ ทุกเวลา!</p>
+
+        <div class="chat-box" id="chat-log"></div>
+
+        <div class="input-area">
+            <input type="text" id="chat-input" placeholder="พิมพ์คำถามของคุณ...">
+            <button onclick="sendChat()">🚀 ส่ง</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:5000/ask";  // เปลี่ยนเป็น URL จริงถ้า Deploy แล้ว
+
+        async function sendChat() {
+            let userInput = document.getElementById("chat-input").value;
+            let chatLog = document.getElementById("chat-log");
+
+            if (!userInput.trim()) {
+                alert("⚠️ กรุณาพิมพ์คำถามก่อน!");
+                return;
+            }
+
+            // แสดงข้อความของผู้ใช้
+            chatLog.innerHTML += `<div class="user-msg">👤 คุณ: ${userInput}</div>`;
+            chatLog.scrollTop = chatLog.scrollHeight;  // Auto-scroll
+
+            document.getElementById("chat-input").value = "";  // ล้างช่องป้อนข้อความ
+
+            try {
+                let response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ question: userInput })
+                });
+
+                let data = await response.json();
+                let answer = data.answer ? data.answer.join(" ") : "❌ ไม่พบข้อมูลที่เกี่ยวข้อง";
+
+                // แสดงข้อความของ AI
+                chatLog.innerHTML += `<div class="bot-msg">🤖 AI: ${answer}</div>`;
+                chatLog.scrollTop = chatLog.scrollHeight;  // Auto-scroll
+
+            } catch (error) {
+                console.error("Error:", error);
+                chatLog.innerHTML += `<div class="bot-msg error"><strong>❌ AI:</strong> เกิดข้อผิดพลาดในการเชื่อมต่อ!</div>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
